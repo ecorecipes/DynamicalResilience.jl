@@ -18,9 +18,9 @@ StructuredPopulationCore = {url = "https://github.com/ecorecipes/ProjectionModel
 [compat]
 ForwardDiff = "0.10, 1"
 LinearAlgebra = "1"
-OrdinaryDiffEqTsit5 = "1, 2"
+OrdinaryDiffEqTsit5 = "2"
 ResilienceCore = "0.1"
-SciMLBase = "2, 3"
+SciMLBase = "3.58"
 Statistics = "1"
 StructuredPopulationCore = "0.1"
 Test = "1"
