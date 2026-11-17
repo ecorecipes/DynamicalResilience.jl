@@ -7,15 +7,19 @@ Resilience of dynamical systems written as SciML problems, built on
 linearised operator means and which metrics apply to it; this package finds the states to
 linearise at and follows them as conditions change.
 
-- `steady_state(prob, u0)`: an equilibrium, by damped Newton (stable or not) or by integrating
-  with a given algorithm and refining.
+- `steady_state(prob, u0)`: an equilibrium of an `ODEProblem` (by damped Newton, stable or not,
+  or by integrating with a given algorithm and refining), or a fixed point of a `DiscreteProblem`.
 - `reproduction_number(prob, dfe; infected, new_infections)`: R₀ by the next-generation method
   (van den Driessche & Watmough 2002), with F, V and K = FV⁻¹.
 - `period_map_jacobian(prob, u0, T; alg)` and `periodic_orbit(prob, u0, T; alg)`: the monodromy
   matrix of a forced or seasonal system and its periodic orbit by shooting, as a
   `DiscreteJacobian` whose eigenvalues are the Floquet multipliers.
+- `map_jacobian(F, u)` and `fixed_point(F, u0)`: the same for any map `u ↦ F(u)`, such as a year
+  of a daily-step simulation.
 - `resilience_along(prob, set_parameter, values)`: resilience metrics along a parameter, with
   warm-started continuation, and whether stability is lost at a fold or a Hopf bifurcation.
+- `metrics_over(build, draws)`: the distribution of resilience metrics over parameter draws
+  (bootstrap replicates, posterior samples), counting draws without a stable equilibrium.
 
 ```julia
 using DynamicalResilience, SciMLBase

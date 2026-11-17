@@ -7,10 +7,12 @@ linearise at and follows them as conditions change:
 
 | question | function | returns |
 |---|---|---|
-| where is the equilibrium? | [`steady_state`](@ref) (Newton, or integrate then refine) | the state and whether it converged |
+| where is the equilibrium? | [`steady_state`](@ref) (Newton, or integrate then refine; fixed points of `DiscreteProblem`s) | the state and whether it converged |
 | will a pathogen invade? | [`reproduction_number`](@ref) (next-generation method) | R₀, F, V and K = FV⁻¹ |
 | is a seasonal cycle stable? | [`period_map_jacobian`](@ref), [`periodic_orbit`](@ref) | a `DiscreteJacobian`: the Floquet multipliers |
+| is a fixed point of any map stable? | [`map_jacobian`](@ref), [`fixed_point`](@ref) | a `DiscreteJacobian` and the fixed point |
 | how far is the threshold? | [`resilience_along`](@ref) | metrics along a parameter, and whether stability is lost at a fold or a Hopf bifurcation |
+| how uncertain is resilience? | [`metrics_over`](@ref) | metrics and quantiles over parameter draws, with counts of draws without a stable equilibrium |
 
 No ODE solver is a dependency. Functions that integrate take the algorithm as `alg`, for
 example `Tsit5()` from OrdinaryDiffEqTsit5.

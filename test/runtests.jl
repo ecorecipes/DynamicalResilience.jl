@@ -9,4 +9,6 @@ using Test
     include("test_reproduction.jl")
     include("test_periodic.jl")
     include("test_continuation.jl")
+    include("test_maps.jl")
+    include("test_draws.jl")
 end

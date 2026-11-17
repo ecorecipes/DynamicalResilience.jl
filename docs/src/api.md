@@ -20,6 +20,16 @@ steady_state
 reproduction_number
 ```
 
+## Maps and fixed points
+
+One step of a discrete-time model, the period map of a forced ODE or a year of a daily-step
+simulation are all maps `u ↦ F(u)`.
+
+```@docs
+map_jacobian
+fixed_point
+```
+
 ## Forced and seasonal systems
 
 ```@docs
@@ -32,6 +42,12 @@ periodic_orbit
 ```@docs
 resilience_along
 leading_eigenvalue
+```
+
+## Uncertainty over parameter draws
+
+```@docs
+metrics_over
 ```
 
 ## Re-exported from ResilienceCore

@@ -66,3 +66,38 @@ function newton(prob, u::Vector{Float64}, p, t, tol, maxiters)
     end
     return (u = u, converged = converged(u, r), residual = r, iterations = maxiters)
 end
+
+"""
+    steady_state(prob::DiscreteProblem, u0 = prob.u0; p = prob.p, t = first(prob.tspan),
+                 method = :newton, tol = 1e-10, maxiters = 100, iterations = 10_000, h = 1e-6)
+        -> (u, converged, residual, iterations)
+
+A fixed point `u` of the discrete-time map of `prob` (`f(u, p, t) = u`), started from `u0`.
+
+- `method = :newton`: [`fixed_point`](@ref) on `u ↦ f(u, p, t)`, which finds the fixed point near
+  `u0` whether or not it is stable.
+- `method = :iterate`: apply the map up to `iterations` times from `u0`, then refine by Newton;
+  it finds an attracting fixed point, the one a simulation would reach.
+
+The returned fields match the ODE method; `residual` is `‖f(u) − u‖∞`.
+"""
+function steady_state(prob::SciMLBase.DiscreteProblem, u0::AbstractVector = prob.u0; p = prob.p,
+                      t = first(prob.tspan), method::Symbol = :newton, tol::Real = 1e-10, maxiters::Integer = 100,
+                      iterations::Integer = 10_000, h::Real = 1e-6)
+    F(x) = rhs(prob, x, p, t)
+    start = Vector{Float64}(u0)
+    if method === :iterate
+        for _ in 1:iterations
+            next = Vector{Float64}(F(start))
+            all(isfinite, next) || break
+            done = norm(next .- start, Inf) <= tol * max(1.0, norm(start, Inf))
+            start = next
+            done && break
+        end
+    elseif method !== :newton
+        throw(ArgumentError("method must be :newton or :iterate, got :$method"))
+    end
+    fp = fixed_point(F, start; tol = tol, maxiters = maxiters, h = h)
+    residual = norm(F(fp.u) .- fp.u, Inf)
+    return (u = fp.u, converged = fp.converged, residual = residual, iterations = fp.iterations)
+end
