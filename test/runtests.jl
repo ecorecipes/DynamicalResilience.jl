@@ -11,4 +11,5 @@ using Test
     include("test_continuation.jl")
     include("test_maps.jl")
     include("test_draws.jl")
+    include("test_simulation.jl")
 end

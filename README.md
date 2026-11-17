@@ -20,6 +20,17 @@ linearise at and follows them as conditions change.
   warm-started continuation, and whether stability is lost at a fold or a Hopf bifurcation.
 - `metrics_over(build, draws)`: the distribution of resilience metrics over parameter draws
   (bootstrap replicates, posterior samples), counting draws without a stable equilibrium.
+- Simulation-based resilience on SciML's integrator interface, for any `(prob, alg)` that
+  `solve` accepts:
+  - `recovery`: return time and return rate after a pulse, from paired runs with common random
+    numbers;
+  - `basin_stability`: the share of random perturbations from which the system returns, using an
+    `EnsembleProblem`;
+  - `early_warning` and `ramped_series`: rolling variance, lag-1 autocorrelation and Kendall's τ
+    as a forcing approaches a tipping point.
+
+  Model packages plug in by implementing `init`, `step!(integ, dt, true)`, `reinit!`,
+  `set_u!` or `derivative_discontinuity!`, `integ.u` and `integ.t`.
 
 ```julia
 using DynamicalResilience, SciMLBase
