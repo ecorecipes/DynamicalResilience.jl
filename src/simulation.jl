@@ -178,11 +178,27 @@ counts as having returned if `returned(observe(final state))` is true. `fraction
 `returned / (trajectories - failed)` and `se` its binomial standard error; trajectories whose
 solve failed are counted in `failed` and excluded, never silently treated as not returning.
 `kwargs` go to `solve` (for example `save_everystep = false`).
+
+`noise` matters only for problems that store their own random seed (a `seed` field, as an
+`SDEProblem` or the problems of the ecorecipes simulation packages do). With
+`noise = :independent` (the default) each trajectory gets its own seed, drawn from its
+ensemble `rng`, so trajectories differ in their noise as well as their starting state.
+`noise = :common` keeps the problem's seed for every trajectory, so all share one noise
+realisation and differ only in their starting state; that estimates basin stability under one
+fixed noise path, not the stochastic basin stability. Deterministic problems are unaffected.
 """
 function basin_stability(prob, alg; sample_perturbation, returned, observe = identity, trajectories::Integer = 1000,
-                         ensemble = SciMLBase.EnsembleThreads(), tspan = prob.tspan, seed = nothing, kwargs...)
+                         ensemble = SciMLBase.EnsembleThreads(), tspan = prob.tspan, seed = nothing,
+                         noise::Symbol = :independent, kwargs...)
+    noise in (:independent, :common) ||
+        throw(ArgumentError("noise must be :independent or :common, got :$noise"))
     base = prob.u0
-    pf(p, ctx) = SciMLBase.remake(p; u0 = sample_perturbation(copy(base), ctx.rng), tspan = tspan)
+    reseed = noise === :independent && hasproperty(prob, :seed)
+    function pf(p, ctx)
+        u0 = sample_perturbation(copy(base), ctx.rng)
+        reseed || return SciMLBase.remake(p; u0 = u0, tspan = tspan)
+        return SciMLBase.remake(p; u0 = u0, tspan = tspan, seed = rand(ctx.rng, UInt32) + one(UInt64))
+    end
     function of(sol, ctx)
         SciMLBase.successful_retcode(sol) || return (missing, false)
         return (Bool(returned(observe(sol.u[end]))), false)

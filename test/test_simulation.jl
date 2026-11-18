@@ -56,6 +56,19 @@ using Statistics: mean, var
         @test bs(1).returned == b.returned                              # reproducible with a seed
     end
 
+    @testset "basin stability of a stochastic problem: independent vs common noise" begin
+        # pure noise from x = 0, start unperturbed: only the noise decides whether x(T) > 0
+        prob = SDEProblem((u, p, t) -> [0.0], (u, p, t) -> [0.5], [0.0], (0.0, 1.0); seed = 42)
+        bs(noise) = basin_stability(prob, EM(); sample_perturbation = (u, rng) -> u, returned = u -> u[1] > 0,
+                                    trajectories = 400, seed = 7, noise = noise, dt = 0.01,
+                                    ensemble = EnsembleSerial(), save_everystep = false)
+        ind = bs(:independent)
+        @test abs(ind.fraction - 0.5) < 4 * ind.se                       # each trajectory has its own noise
+        @test bs(:independent).returned == ind.returned                  # still reproducible with a seed
+        @test bs(:common).fraction in (0.0, 1.0)                         # one shared noise path
+        @test_throws ArgumentError bs(:other)
+    end
+
     @testset "early-warning indicators" begin
         @test DynamicalResilience.kendall_tau(1:10, 1:10) ≈ 1
         @test DynamicalResilience.kendall_tau(1:10, 10:-1:1) ≈ -1

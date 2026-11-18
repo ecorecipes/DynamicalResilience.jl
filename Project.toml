@@ -1,6 +1,6 @@
 name = "DynamicalResilience"
 uuid = "54629d0c-0bd5-4489-a333-4d325b057304"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Simon Frost"]
 
 [deps]
